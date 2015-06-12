@@ -42,33 +42,32 @@ void loop() {
   exitCylinder.extend(true);
   entryCylinder.extend(false);
 
-  while(photoEye.hasReachedSteadyState() == false){
+  // Do until photoEye is blocked.
+  int isBlocked = HIGH;
+  while(photoEye.hasReachedSteadyState() == false || photoEye.getStatus() != isBlocked){
     updateDigest();
   }
  
-  // Do when photoEye is blocked.
-  int isBlocked = HIGH;
-  if(photoEye.getStatus() == isBlocked){
-    // Stop conveyer.
-    conveyorBelt.enabled(false);
-  
-    // Fill all bottles underneath valves.
-    int length = sizeof(valves)/sizeof(Valve);
+  // Stop conveyer.
+  conveyorBelt.enabled(false);
+
+  // Fill all bottles underneath valves.
+  int length = sizeof(valves)/sizeof(Valve);
+  for (int i = 0; i < length; i++) { 
+    valves[i].enabled(true);
+  }
+
+  // Wait for all bottles to be filled.
+  boolean hasAllBottlesBeenFilled = false;
+  do{
+    boolean tmp = true;
     for (int i = 0; i < length; i++) { 
-      valves[i].enabled(true);
+      tmp = tmp && valves[i].isEnabled();
     }
-  
-    // Wait for all bottles to be filled.
-    boolean hasAllBottlesBeenFilled = false;
-    do{
-      boolean tmp = true;
-      for (int i = 0; i < length; i++) { 
-        tmp = tmp && valves[i].isEnabled();
-      }
-      hasAllBottlesBeenFilled = tmp;
-      updateDigest();
-    }while(hasAllBottlesBeenFilled == false);  
-  } 
+    hasAllBottlesBeenFilled = tmp;
+    updateDigest();
+  }while(hasAllBottlesBeenFilled == false);  
+
  
   // Repeat
   reset();
