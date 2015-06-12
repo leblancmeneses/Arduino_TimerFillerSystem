@@ -7,8 +7,7 @@ class Cylinder
 {
   public:
     Cylinder(int extendPin, int retractPin);
-    void setStatus(int isExtended);
-    int getStatus();
+    void extend(boolean isExtended);
   private:
     int _extendPin;
     int _retractPin;

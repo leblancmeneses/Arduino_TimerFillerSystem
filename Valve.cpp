@@ -1,37 +1,33 @@
 #include "Arduino.h"
 #include "Valve.h"
 
-Valve::Valve(int pin)
+Valve::Valve(int pin, int shutOffValveTimeout)
 {
-  pinMode(pin, OUTPUT);
   _pin = pin;
+  _shutOffValveTimeout = shutOffValveTimeout;
   
-  // Load from EPROM
-  _shutOffTimeoutMilliseconds = 1000;
+  pinMode(pin, OUTPUT);
 }
 
-//https://github.com/adafruit/Adafruit-BMP085-Library
-//https://github.com/aron-bordin/ArduinoTimerObject
-// http://www.arduino.cc/en/Hacking/LibraryTutorial
-void Valve::setStatus(int isOn)
-{
-  _statusValue = isOn;
-  if(isOn == HIGH){
-    _shutOffTimeoutMilliseconds = 1000 * _shutOffTimeoutMilliseconds;
+void Valve::enabled(boolean isEnabled)
+{  
+  if(isEnabled == true){
+    _shutOffWhen = _shutOffValveTimeout + millis();
   }
-  digitalWrite(_pin, _statusValue);
+  _isEnabled = isEnabled;
+  digitalWrite(_pin, (isEnabled == true? HIGH:LOW));
 }
 
-class Valve
-{
-  public:
+boolean Valve::isEnabled()
+{  
+  return _isEnabled;
+}
 
-    void setStatus();
-    int getStatus();
-    void tick();
-  private:
-    int _pin;
-    // Relies on a call to tick() in the main loop().
-    int _shutOffTimeoutMilliseconds;
-};
+void Valve::updateDigest()
+{
+  if (millis() > _shutOffWhen && _isEnabled == true) {
+    enabled(false);
+  }
+}
+
 

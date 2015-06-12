@@ -6,14 +6,18 @@
 class PhotoEye
 {
   public:
-    PhotoEye(int pin);
+    PhotoEye(int pin, int steadyStateTimeout);
     int getStatus();
-    void tick();
+    boolean hasReachedSteadyState();
+    void updateDigest();
   private:
     int _pin;
-    int _currentStatus;
-    // Relies on a call to tick() in the main loop().
-    int _blockedTimeoutMilliseconds;
+    int _lastMillisStatus;
+    int _lastMillis;
+    boolean _hasReachedSteadyState;
+    
+    // Relies on a call to updateDigest() in the main loop().
+    int _steadyStateTimeout;
 };
 
 #endif

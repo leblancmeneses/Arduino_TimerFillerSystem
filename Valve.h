@@ -6,15 +6,19 @@
 class Valve
 {
   public:
-    Valve(int pin);
-    void setStatus(int isOn);
-    int getStatus();
-    void tick();
+    Valve(int pin, int shutOffValveTimeout);
+    void enabled(boolean isEnabled);
+    boolean isEnabled();
+    void updateDigest();
   private:
     int _pin;
-    int _statusValue;
-    // Relies on a call to tick() in the main loop().
-    int _shutOffTimeoutMilliseconds;
+    int _shutOffValveTimeout;
+    
+    // Relies on a call to updateDigest() in the main loop().
+    int _shutOffWhen;
+    
+    // Returned from isEnabled().
+    boolean _isEnabled;
 };
 
 #endif
