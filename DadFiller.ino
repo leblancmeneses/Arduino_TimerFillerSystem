@@ -38,64 +38,64 @@ void setup() {
 
 void loop() {
   delay(TIME_TO_CLEAR_BOTTLE);
- 
+
   exitCylinder.extend(true);
   entryCylinder.extend(false);
 
   // Do until photoEye is blocked.
   int isBlocked = HIGH;
-  while(photoEye.hasReachedSteadyState() == false || photoEye.getStatus() != isBlocked){
+  while (photoEye.hasReachedSteadyState() == false || photoEye.getStatus() != isBlocked) {
     updateDigest();
   }
- 
+
   // Stop conveyer.
   conveyorBelt.enabled(false);
 
   // Fill all bottles underneath valves.
-  int length = sizeof(valves)/sizeof(Valve);
-  for (int i = 0; i < length; i++) { 
+  int length = sizeof(valves) / sizeof(Valve);
+  for (int i = 0; i < length; i++) {
     valves[i].enabled(true);
   }
 
   // Wait for all bottles to be filled.
-  boolean hasAllBottlesBeenFilled = false;
-  do{
-    boolean tmp = true;
-    for (int i = 0; i < length; i++) { 
-      tmp = tmp && valves[i].isEnabled();
+  boolean hasAllBottlesBeenFilled;
+  do {
+    hasAllBottlesBeenFilled = true;
+    for (int i = 0; i < length; i++) {
+      // When isEnabled == false means that the valve has filled the bottle.
+      hasAllBottlesBeenFilled = hasAllBottlesBeenFilled && (valves[i].isEnabled() == false);
     }
-    hasAllBottlesBeenFilled = tmp;
     updateDigest();
-  }while(hasAllBottlesBeenFilled == false);  
+  } while (hasAllBottlesBeenFilled == false);
 
- 
+
   // Repeat
   reset();
 }
 
 
 
-void reset(){
+void reset() {
   // Shut off all valves.
-  int length = sizeof(valves)/sizeof(Valve);
-  for (int i = 0; i < length; i++) { 
+  int length = sizeof(valves) / sizeof(Valve);
+  for (int i = 0; i < length; i++) {
     valves[i].enabled(false);
   }
-  
+
   exitCylinder.extend(false);
   entryCylinder.extend(true);
-  
+
   conveyorBelt.enabled(true);
 }
 
 
 
-void updateDigest(){
+void updateDigest() {
   photoEye.updateDigest();
-  
+
   // Call updateDigest on all valves.
-  int length = sizeof(valves)/sizeof(Valve);
-  for (int i = 0; i < length; i++) { 
+  int length = sizeof(valves) / sizeof(Valve);
+  for (int i = 0; i < length; i++) {
     valves[i].updateDigest();
   }
 }
